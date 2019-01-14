@@ -31,6 +31,8 @@ import java.io.IOException;
 
 public class Main extends Application {
 //	Row row = null;
+	int ligne = 1;
+	int mouvement = 0;
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -90,7 +92,7 @@ public class Main extends Application {
 		Signal emg = new Signal();
 		XbeeListener data = new XbeeListener(xbee, acc_x, acc_y, acc_z, emg);
 
-		int ligne = 1;
+		
 
 //		DecimalFormat df = new DecimalFormat("#.##");
 
@@ -118,13 +120,10 @@ public class Main extends Application {
 			public void handle(MouseEvent e) {
 				System.out.println("Début de l'acquisition");
 //				row = Sheet1.createRow(k);
-//				row.createCell(0).setCellValue("Haut");
-				try {
-					data.start_acquisition_xbee(1, ligne);
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+				//row.createCell(0).setCellValue("Haut");
+				mouvement = 1;
+				data.start_acquisition_xbee();
+
 			}
 		});
 
@@ -133,12 +132,8 @@ public class Main extends Application {
 				System.out.println("Début de l'acquisition");
 //				row = Sheet1.createRow(k);
 //				row.createCell(0).setCellValue("Bas");
-				try {
-					data.start_acquisition_xbee(2, ligne);
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+				mouvement = 2;
+				data.start_acquisition_xbee();
 			}
 		});
 
@@ -147,12 +142,8 @@ public class Main extends Application {
 				System.out.println("Début de l'acquisition");
 //				row = Sheet1.createRow(k);
 //				row.createCell(0).setCellValue("Gauche");
-				try {
-					data.start_acquisition_xbee(3, ligne);
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+				mouvement = 3;
+				data.start_acquisition_xbee();
 			}
 		});
 
@@ -161,12 +152,8 @@ public class Main extends Application {
 				System.out.println("Début de l'acquisition");
 //				row = Sheet1.createRow(k);
 //				row.createCell(0).setCellValue("Droite");
-				try {
-					data.start_acquisition_xbee(4, ligne);
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+				mouvement = 4;
+				data.start_acquisition_xbee();
 			}
 		});
 
@@ -174,7 +161,13 @@ public class Main extends Application {
 		button_stop.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			public void handle(MouseEvent e) {
 				System.out.println("Fin de l'acquisition");
-				data.stop_acquisition_xbee();
+				int lignetemp = ligne;
+				try {
+					ligne = data.stop_acquisition_xbee(mouvement, lignetemp);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 //				int i = 0;
 //				int ktemp = k;
 //				while (k < ktemp + data.acc_x.get_size()) {

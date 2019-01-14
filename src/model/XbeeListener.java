@@ -31,9 +31,7 @@ public class XbeeListener {
 	}
 
 	// Méthode pour l'acquisition des données
-	public void start_acquisition_xbee(int mouvement, int ligne) throws IOException {
-
-		DecimalFormat df = new DecimalFormat("#.##"); // Permet de formater les données avec 2 décimales
+	public void start_acquisition_xbee() {
 
 		this.packetListener = new PacketListener() {
 			public void processResponse(XBeeResponse response) {
@@ -56,9 +54,9 @@ public class XbeeListener {
 						// double tension_m = m*3.3/1023;
 
 						// Accélération selon x, y et z
-						double acceleration_x = (tension_x - 1.65) / 0.33;
-						double acceleration_y = (tension_y - 1.65) / 0.33;
-						double acceleration_z = (tension_z - 1.65) / 0.33;
+						double acceleration_x = (tension_x - 1.65) / 0.34;
+						double acceleration_y = (tension_y - 1.65) / 0.34;
+						double acceleration_z = (tension_z - 1.65) / 0.34;
 
 						// Capteur EMG
 						// double donnee_emg;
@@ -78,7 +76,12 @@ public class XbeeListener {
 			}
 		};
 		xbee.addPacketListener(packetListener);
+	}
 
+	// Méthode pour arrêter l'acquisition des données
+	public int stop_acquisition_xbee(int mouvement, int ligne) throws IOException {
+		xbee.removePacketListener(packetListener);
+		
 		// Création fichier Excel pour enregistrement des données
 		FileOutputStream database = new FileOutputStream("database.xls");
 		Workbook wb = new HSSFWorkbook();
@@ -113,30 +116,30 @@ public class XbeeListener {
 			row = Sheet1.createRow(ligne);
 			row.createCell(0).setCellValue("Droite");
 		}
-
+		
+		DecimalFormat df = new DecimalFormat("#.##"); // Permet de formater les données avec 2 décimales
+		
 		// Remplissage des 4 colonnes associées aux 4 sorties des capteurs (3 pour
 		// l'accéléromètre et 1 pour l'EMG)
-		int ltemp = ligne;
+		//int ltemp = ligne;
 		int i = 0;
-		while (ligne < ltemp + acc_x.get_size()) {
-			for (i = 0; i < acc_x.get_size(); i++) {
-				row.createCell(1).setCellValue(emg.get_echantillon(i));
+		int lignetemp = ligne;
+		while (ligne < lignetemp + acc_x.get_size()) {
+			for (i = acc_x.get_size()-lignetemp; i < acc_x.get_size(); i++) {
+				row.createCell(4).setCellValue(emg.get_echantillon(i));
 				row.createCell(2).setCellValue(df.format(acc_x.get_echantillon(i)));
 				row.createCell(3).setCellValue(df.format(acc_y.get_echantillon(i)));
-				row.createCell(4).setCellValue(df.format(acc_z.get_echantillon(i)));
-				row = Sheet1.createRow(ligne);
+				row.createCell(1).setCellValue(df.format(acc_z.get_echantillon(i)));
 				ligne++;
+				row = Sheet1.createRow(ligne);
 			}
 		}
 
 		wb.write(database);
 		database.close();
 		wb.close();
-	}
-
-	// Méthode pour arrêter l'acquisition des données
-	public void stop_acquisition_xbee() {
-		xbee.removePacketListener(packetListener);
+		
+		return ligne;
 	}
 
 }
